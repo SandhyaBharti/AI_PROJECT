@@ -1,0 +1,1362 @@
+<!-- HTML SOURCE CODE -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Homework Helper</title>
+    <!-- <link rel="stylesheet" href="AI_Project.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container" id="auth-container">
+        <div class="auth-form">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <h1>AI Homework Helper</h1>
+            </div>
+            <div class="tabs">
+                <button class="tab active" id="login-tab">Login</button>
+                <button class="tab" id="signup-tab">Sign Up</button>
+            </div>
+            <form id="login-form">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="login-email" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="login-password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="auth-btn">Login</button>
+            </form>
+             <form id="signup-form" style="display: none;">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="signup-name" placeholder="Name" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="signup-email" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="signup-password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="auth-btn">Sign Up</button>
+            </form> 
+        </div>
+    </div>
+
+    <div class="app-container" id="app-container" style="display: none;">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <button class="new-chat-btn" id="new-chat-btn">
+                    <i class="fas fa-plus"></i> New Chat
+                </button>
+                <button class="history-toggle" id="history-toggle">
+                    <i class="fas fa-history"></i> History
+                </button>
+            </div>
+            <div class="history-container" id="history-container">
+                <div class="history-list" id="history-list"></div>
+            </div>
+        </div>
+        <div class="main-content">
+            <header>
+                <div class="header-left">
+                    <button class="menu-toggle" id="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>AI Homework Helper</h1>
+                </div>
+                <div class="header-right">
+                    <div class="model-selector">
+                        <select id="ai-model">
+                            <option value="openai/Versions">Versions</option>
+                            <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                            <option value="google/palm-2-chat-bison">PaLM 2</option>
+                        </select>
+                    </div>
+                    <button id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </header>
+            <div class="chat-container" id="chat-container">
+                <div class="welcome-message">
+                    <div class="welcome-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h2>Welcome to AI Homework Helper!</h2>
+                    <p>Ask me anything about your homework - Math, Science, History, Programming, or any subject!</p>
+                    <div class="quick-questions">
+                        <button class="quick-question" data-question="Explain the Pythagorean theorem">Math</button>
+                        <button class="quick-question" data-question="What is photosynthesis?">Science</button>
+                        <button class="quick-question" data-question="Explain World War 2">History</button>
+                        <button class="quick-question" data-question="How does a for loop work in Python?">Programming</button>
+                    </div>
+                </div>
+                <div class="messages" id="messages"></div>
+                <div class="input-area">
+                    <button id="voice-btn" class="voice-btn">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <input type="text" id="user-input" placeholder="Ask any homework question..." autocomplete="off">
+                    <button id="send-btn" class="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- CSS CODE -->
+     <style>
+        :root {
+    --primary-color: #4361ee;
+    --secondary-color: #3a0ca3;
+    --accent-color: #4cc9f0;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --success-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --text-color: #333;
+    --text-light: #6c757d;
+    --bg-color: #f5f7fa;
+    --card-bg: #ffffff;
+    --sidebar-bg: #2b2d42;
+    --sidebar-text: #ffffff;
+    --sidebar-hover: #3a3d5d;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--bg-color);
+}
+
+.auth-form {
+    background: var(--card-bg);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.logo {
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+.logo i {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.logo h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.tabs {
+    display: flex;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.tab {
+    flex: 1;
+    padding: 0.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-light);
+    transition: all 0.3s;
+    position: relative;
+}
+
+.tab.active {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--primary-color);
+    border-radius: 3px 3px 0 0;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 1.25rem;
+}
+
+.input-group i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.auth-form input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.auth-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+.auth-btn:active {
+    transform: scale(0.98);
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    background-color: var(--bg-color);
+}
+
+.sidebar {
+    width: 280px;
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+    z-index: 100;
+}
+
+.sidebar-header {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.new-chat-btn, .history-toggle {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: background-color 0.3s;
+}
+
+.new-chat-btn:hover, .history-toggle:hover {
+    background-color: var(--secondary-color);
+}
+
+.history-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.history-item {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.history-item:hover {
+    background-color: var(--sidebar-hover);
+}
+
+.history-item i {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.history-item .history-actions {
+    display: none;
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.history-item:hover .history-actions {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.history-actions button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: color 0.3s;
+}
+
+.history-actions button:hover {
+    color: white;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+header {
+    background-color: var(--card-bg);
+    padding: 1rem 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.menu-toggle {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: none;
+}
+
+header h1 {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.model-selector select {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    background-color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.model-selector select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+#logout-btn {
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.3s;
+}
+
+#logout-btn:hover {
+    background-color: #c0392b;
+}
+
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    overflow: hidden;
+}
+
+.welcome-message {
+    text-align: center;
+    padding: 2rem 1rem;
+    margin: auto;
+    max-width: 800px;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.welcome-icon {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.welcome-message h2 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    font-size: 1.75rem;
+}
+
+.welcome-message p {
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.quick-questions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.quick-question {
+    padding: 0.75rem 1.25rem;
+    background-color: var(--card-bg);
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.quick-question:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.message {
+    max-width: 85%;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    word-wrap: break-word;
+    animation: fadeIn 0.3s ease-out;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.user-message {
+    background-color: var(--primary-color);
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+}
+
+.bot-message {
+    background-color: var(--card-bg);
+    margin-right: auto;
+    border-bottom-left-radius: 4px;
+}
+
+.message-content {
+    line-height: 1.6;
+}
+
+.message-content pre {
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 0.5rem 0;
+}
+
+.message-content code {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+.message-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+
+.user-message .message-meta {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.message-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.message-actions button {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+
+.message-actions button:hover {
+    opacity: 1;
+}
+
+.input-area {
+    display: flex;
+    padding: 0.75rem;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin: 0 1rem 1rem;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#user-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    resize: none;
+    max-height: 150px;
+    min-height: 50px;
+}
+
+#user-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+}
+
+.voice-btn, .send-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.voice-btn:hover, .send-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+.voice-btn:active, .send-btn:active {
+    transform: scale(0.95);
+}
+
+.voice-btn.listening {
+    animation: pulse 1.5s infinite;
+}
+
+.loading-message {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    margin-right: auto;
+    max-width: 85%;
+}
+
+.loading-dots {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.loading-dots span {
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    display: inline-block;
+    animation: bounce 1.4s infinite ease-in-out;
+}
+
+.loading-dots span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.loading-dots span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(67, 97, 238, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        transform: translateX(-100%);
+        z-index: 1000;
+    }
+    
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+    
+    .model-selector select {
+        padding: 0.5rem;
+    }
+    
+    .message {
+        max-width: 90%;
+    }
+    
+    .welcome-message {
+        padding: 1rem;
+    }
+    
+    .quick-questions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-form {
+        padding: 1.5rem;
+    }
+    
+    header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .header-right {
+        gap: 0.5rem;
+    }
+    
+    #logout-btn span {
+        display: none;
+    }
+    
+    .input-area {
+        margin: 0 0.5rem 0.5rem;
+    }
+}
+     </style>
+
+    <!-- <script src="AI_Project.js"></script> -->
+     <!-- JAVACSRIPT CODE -->
+      <script>
+        // DOM Elements
+const authContainer = document.getElementById('auth-container');
+const appContainer = document.getElementById('app-container');
+const loginForm = document.getElementById('login-form');
+const signupForm = document.getElementById('signup-form');
+const loginTab = document.getElementById('login-tab');
+const signupTab = document.getElementById('signup-tab');
+const logoutBtn = document.getElementById('logout-btn');
+const sidebar = document.getElementById('sidebar');
+const menuToggle = document.getElementById('menu-toggle');
+const historyToggle = document.getElementById('history-toggle');
+const newChatBtn = document.getElementById('new-chat-btn');
+const historyContainer = document.getElementById('history-container');
+const historyList = document.getElementById('history-list');
+const messagesContainer = document.getElementById('messages');
+const userInput = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
+const voiceBtn = document.getElementById('voice-btn');
+const aiModelSelect = document.getElementById('ai-model');
+const quickQuestions = document.querySelectorAll('.quick-question');
+
+// OpenRouter API Configuration
+const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const OPENROUTER_API_KEY = "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"; // Replace with your actual API key
+
+// State
+let currentUser = null;
+let chatHistory = [];
+let currentChatId = null;
+let isListening = false;
+let recognition = null;
+
+// Initialize the app
+function init() {
+    checkAuthState();
+    setupEventListeners();
+    initializeVoiceRecognition();
+}
+
+// Check if user is authenticated
+function checkAuthState() {
+    const user = localStorage.getItem('currentUser');
+    if (user) {
+        currentUser = JSON.parse(user);
+        loadChatHistory();
+        showApp();
+    } else {
+        showAuth();
+    }
+}
+
+// Set up event listeners
+function setupEventListeners() {
+    // Auth tabs
+    loginTab.addEventListener('click', () => switchAuthTab('login'));
+    signupTab.addEventListener('click', () => switchAuthTab('signup'));
+    
+    // Auth forms
+    loginForm.addEventListener('submit', handleLogin);
+    signupForm.addEventListener('submit', handleSignup);
+    
+    // Chat functionality
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+    
+    // Sidebar and history
+    menuToggle.addEventListener('click', toggleSidebar);
+    historyToggle.addEventListener('click', toggleHistoryView);
+    newChatBtn.addEventListener('click', startNewChat);
+    
+    // Voice button
+    voiceBtn.addEventListener('click', toggleVoiceRecognition);
+    
+    // Quick questions
+    quickQuestions.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const question = e.target.dataset.question;
+            userInput.value = question;
+            sendMessage();
+        });
+    });
+    
+    // Logout
+    logoutBtn.addEventListener('click', handleLogout);
+}
+
+// Switch between login and signup tabs
+function switchAuthTab(tab) {
+    if (tab === 'login') {
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+        loginTab.classList.add('active');
+        signupTab.classList.remove('active');
+    } else {
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'block';
+        loginTab.classList.remove('active');
+        signupTab.classList.add('active');
+    }
+}
+
+// Handle login
+async function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    
+    if (!email || !password) {
+        showAlert('Please fill in all fields', 'error');
+        return;
+    }
+
+    try {
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const user = users.find(u => u.email === email && u.password === password);
+        
+        if (user) {
+            currentUser = {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                token: 'demo-token'
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showApp();
+            loadChatHistory();
+            showAlert('Login successful!', 'success');
+        } else {
+            showAlert('Invalid email or password', 'error');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        showAlert('Login failed. Please try again.', 'error');
+    }
+}
+
+// Handle signup
+async function handleSignup(e) {
+    e.preventDefault();
+    const name = document.getElementById('signup-name').value;
+    const email = document.getElementById('signup-email').value;
+    const password = document.getElementById('signup-password').value;
+    
+    if (!name || !email || !password) {
+        showAlert('Please fill in all fields', 'error');
+        return;
+    }
+
+    try {
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        
+        if (users.some(u => u.email === email)) {
+            showAlert('Email already registered', 'error');
+            return;
+        }
+        
+        const newUser = {
+            id: 'user-' + Date.now(),
+            name,
+            email,
+            password
+        };
+        
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
+        
+        currentUser = {
+            id: newUser.id,
+            name: newUser.name,
+            email: newUser.email,
+            token: 'demo-token'
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        showApp();
+        loadChatHistory();
+        showAlert('Account created successfully!', 'success');
+    } catch (error) {
+        console.error('Signup error:', error);
+        showAlert('Signup failed. Please try again.', 'error');
+    }
+}
+
+// Handle logout
+function handleLogout() {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    showAuth();
+    showAlert('Logged out successfully', 'success');
+}
+
+// Toggle sidebar on mobile
+function toggleSidebar() {
+    sidebar.classList.toggle('open');
+}
+
+// Toggle history view
+function toggleHistoryView() {
+    historyContainer.style.display = historyContainer.style.display === 'none' ? 'block' : 'none';
+}
+
+// Start a new chat
+function startNewChat() {
+    currentChatId = 'chat-' + Date.now();
+    chatHistory.push({
+        id: currentChatId,
+        title: 'New Chat',
+        messages: [],
+        model: aiModelSelect.value,
+        createdAt: new Date().toISOString()
+    });
+    
+    saveChatHistory();
+    renderChatHistory();
+    messagesContainer.innerHTML = '';
+    document.querySelector('.welcome-message').style.display = 'none';
+}
+
+// Load chat history from localStorage
+function loadChatHistory() {
+    if (!currentUser) return;
+    
+    const savedHistory = localStorage.getItem(`chatHistory_${currentUser.id}`);
+    if (savedHistory) {
+        chatHistory = JSON.parse(savedHistory);
+        renderChatHistory();
+        
+        if (chatHistory.length > 0) {
+            document.querySelector('.welcome-message').style.display = 'none';
+            loadChat(chatHistory[0].id);
+        }
+    } else {
+        chatHistory = [];
+    }
+}
+
+// Save chat history to localStorage
+function saveChatHistory() {
+    if (!currentUser) return;
+    localStorage.setItem(`chatHistory_${currentUser.id}`, JSON.stringify(chatHistory));
+}
+
+// Render chat history in sidebar
+function renderChatHistory() {
+    historyList.innerHTML = '';
+    
+    chatHistory.forEach(chat => {
+        if (chat.messages.length === 0) return;
+        
+        const firstMessage = chat.messages[0].content;
+        const title = firstMessage.length > 30 
+            ? firstMessage.substring(0, 30) + '...' 
+            : firstMessage;
+        
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        historyItem.dataset.chatId = chat.id;
+        historyItem.innerHTML = `
+            <i class="fas fa-comment"></i>
+            <span>${title}</span>
+            <div class="history-actions">
+                <button class="delete-chat" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        
+        historyList.appendChild(historyItem);
+    });
+    
+    // Add event listeners to history items
+    document.querySelectorAll('.history-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            if (!e.target.closest('.history-actions')) {
+                const chatId = item.dataset.chatId;
+                loadChat(chatId);
+            }
+        });
+    });
+    
+    document.querySelectorAll('.delete-chat').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const chatId = btn.closest('.history-item').dataset.chatId;
+            deleteChat(chatId);
+        });
+    });
+}
+
+// Load a specific chat
+function loadChat(chatId) {
+    const chat = chatHistory.find(c => c.id === chatId);
+    if (!chat) return;
+    
+    currentChatId = chatId;
+    messagesContainer.innerHTML = '';
+    
+    chat.messages.forEach(message => {
+        appendMessage(message.role, message.content, message.timestamp);
+    });
+    
+    document.querySelector('.welcome-message').style.display = 'none';
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Delete a chat
+function deleteChat(chatId) {
+    if (confirm('Are you sure you want to delete this chat?')) {
+        chatHistory = chatHistory.filter(chat => chat.id !== chatId);
+        saveChatHistory();
+        renderChatHistory();
+        
+        if (currentChatId === chatId) {
+            messagesContainer.innerHTML = '';
+            document.querySelector('.welcome-message').style.display = 'block';
+            currentChatId = null;
+        }
+    }
+}
+
+// Send message to chatbot
+async function sendMessage() {
+    const message = userInput.value.trim();
+    if (!message) return;
+    
+    // Add user message to UI
+    appendMessage('user', message);
+    userInput.value = '';
+    
+    // Hide welcome message
+    document.querySelector('.welcome-message').style.display = 'none';
+    
+    // Show loading indicator
+    const loadingId = 'loading-' + Date.now();
+    showLoadingIndicator(loadingId);
+    
+    try {
+        // Get or create current chat
+        let currentChat = chatHistory.find(chat => chat.id === currentChatId);
+        if (!currentChat) {
+            currentChatId = 'chat-' + Date.now();
+            currentChat = {
+                id: currentChatId,
+                title: message.length > 30 ? message.substring(0, 30) + '...' : message,
+                messages: [],
+                model: aiModelSelect.value,
+                createdAt: new Date().toISOString()
+            };
+            chatHistory.unshift(currentChat);
+        }
+        
+        // Add user message to history
+        const userMessage = {
+            role: 'user',
+            content: message,
+            timestamp: new Date().toISOString()
+        };
+        
+        currentChat.messages.push(userMessage);
+        currentChat.model = aiModelSelect.value;
+        saveChatHistory();
+        renderChatHistory();
+        
+        // Call OpenRouter API to get bot response
+        const botResponse = await getOpenRouterResponse(message, currentChat.messages, aiModelSelect.value);
+        
+        // Remove loading indicator
+        removeLoadingIndicator(loadingId);
+        
+        // Add bot response to UI and history
+        appendMessage('assistant', botResponse);
+        
+        const botMessage = {
+            role: 'assistant',
+            content: botResponse,
+            timestamp: new Date().toISOString()
+        };
+        
+        currentChat.messages.push(botMessage);
+        saveChatHistory();
+    } catch (error) {
+        console.error('Error getting bot response:', error);
+        removeLoadingIndicator(loadingId);
+        appendMessage('assistant', 'Sorry, I encountered an error. Please try again later.');
+    }
+}
+
+// Show loading indicator
+function showLoadingIndicator(id) {
+    const loadingElement = document.createElement('div');
+    loadingElement.className = 'loading-message';
+    loadingElement.id = id;
+    loadingElement.innerHTML = `
+        <div class="loading-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <span>AI is thinking...</span>
+    `;
+    messagesContainer.appendChild(loadingElement);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Remove loading indicator
+function removeLoadingIndicator(id) {
+    const loadingElement = document.getElementById(id);
+    if (loadingElement) {
+        loadingElement.remove();
+    }
+}
+
+// Get response from OpenRouter API
+async function getOpenRouterResponse(message, conversationHistory, model) {
+    try {
+        const response = await fetch(OPENROUTER_API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+                "HTTP-Referer": window.location.href,
+                "X-Title": "AI Homework Helper"
+            },
+            body: JSON.stringify({
+                model: model,
+                messages: [
+                    {
+                        role: "system",
+                        content: `You are an AI Homework Helper. Provide clear, detailed, and accurate answers to student questions across all subjects including:
+                        - Mathematics (algebra, calculus, geometry)
+                        - Science (physics, chemistry, biology)
+                        - Social Studies (history, geography, civics)
+                        - Languages (English, Hindi, literature)
+                        - Programming (Python, Java, C++, web development)
+                        - Advanced topics (AI, ML, data science)
+                        
+                        Format your answers with proper headings, bullet points, and code blocks when appropriate. Break down complex concepts into simple terms with examples.`
+                    },
+                    ...conversationHistory.map(msg => ({
+                        role: msg.role,
+                        content: msg.content
+                    }))
+                ],
+                temperature: 0.7,
+                max_tokens: 2000
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return formatResponse(data.choices[0].message.content);
+    } catch (error) {
+        console.error("OpenRouter API error:", error);
+        throw error;
+    }
+}
+
+// Format the response with proper HTML
+function formatResponse(text) {
+    // Convert markdown code blocks to HTML
+    text = text.replace(/```(\w*)([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+    
+    // Convert bold and italic
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Convert lists
+    text = text.replace(/^\s*\*\s(.*$)/gm, '<li>$1</li>');
+    text = text.replace(/<li>.*<\/li>/g, '<ul>$&</ul>');
+    
+    return text;
+}
+
+// Append message to chat UI
+function appendMessage(role, content, timestamp = null) {
+    timestamp = timestamp || new Date().toISOString();
+    const date = new Date(timestamp);
+    const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    const messageElement = document.createElement('div');
+    messageElement.className = `message ${role}-message`;
+    
+    messageElement.innerHTML = `
+        <div class="message-content">${content}</div>
+        <div class="message-meta">
+            <span>${timeString}</span>
+            <div class="message-actions">
+                <button class="copy-message" title="Copy">
+                    <i class="fas fa-copy"></i>
+                </button>
+                <button class="save-message" title="Save">
+                    <i class="fas fa-bookmark"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(messageElement);
+    
+    // Add event listeners to message actions
+    messageElement.querySelector('.copy-message').addEventListener('click', () => {
+        navigator.clipboard.writeText(content.replace(/<[^>]*>/g, ''));
+        showAlert('Message copied to clipboard!', 'success');
+    });
+    
+    messageElement.querySelector('.save-message').addEventListener('click', () => {
+        saveMessageToFavorites(content);
+    });
+    
+    // Scroll to bottom
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Save message to favorites
+function saveMessageToFavorites(content) {
+    if (!currentUser) return;
+    
+    const favorites = JSON.parse(localStorage.getItem(`favorites_${currentUser.id}`)) || [];
+    favorites.push({
+        content: content.replace(/<[^>]*>/g, ''),
+        savedAt: new Date().toISOString()
+    });
+    
+    localStorage.setItem(`favorites_${currentUser.id}`, JSON.stringify(favorites));
+    showAlert('Message saved to favorites!', 'success');
+}
+
+// Initialize voice recognition
+function initializeVoiceRecognition() {
+    if ('webkitSpeechRecognition' in window) {
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+        
+        recognition.onstart = () => {
+            isListening = true;
+            voiceBtn.classList.add('listening');
+            showAlert('Listening... Speak now', 'info');
+        };
+        
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            userInput.value = transcript;
+        };
+        
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error', event.error);
+            showAlert('Voice recognition error: ' + event.error, 'error');
+        };
+        
+        recognition.onend = () => {
+            isListening = false;
+            voiceBtn.classList.remove('listening');
+        };
+    } else {
+        console.warn('Speech recognition not supported');
+        voiceBtn.style.display = 'none';
+    }
+}
+
+// Toggle voice recognition
+function toggleVoiceRecognition() {
+    if (!recognition) return;
+    
+    if (isListening) {
+        recognition.stop();
+    } else {
+        recognition.start();
+    }
+}
+
+// Show alert message
+function showAlert(message, type) {
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type}`;
+    alert.textContent = message;
+    document.body.appendChild(alert);
+    
+    setTimeout(() => {
+        alert.remove();
+    }, 3000);
+}
+
+// Show auth screen
+function showAuth() {
+    authContainer.style.display = 'flex';
+    appContainer.style.display = 'none';
+    loginForm.reset();
+    signupForm.reset();
+    switchAuthTab('login');
+}
+
+// Show app screen
+function showApp() {
+    authContainer.style.display = 'none';
+    appContainer.style.display = 'flex';
+}
+
+// Initialize the app when the DOM is loaded
+document.addEventListener('DOMContentLoaded', init);
+      </script>
+</body>
+</html>
+
+ 
